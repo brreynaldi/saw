@@ -1,3 +1,17 @@
+@php
+    // Ambil path file gambar di public/images
+    $path = public_path('images/1.jpeg');
+
+    // Pastikan file ada sebelum diubah ke base64
+    if (file_exists($path)) {
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+        $base64Logo = 'data:image/' . $type . ';base64,' . base64_encode($data);
+    } else {
+        $base64Logo = '';
+    }
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,35 +21,40 @@
     <title>Document</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <style type="text/css">
-        .garis1{
+        .garis1 {
             border-top:3px solid black;
             height: 2px;
             border-bottom:1px solid black;
-
         }
-
-            #camat{
+        #camat {
             text-align:center;
-            }
-            #nama-camat{
+        }
+        #nama-camat {
             margin-top:100px;
             text-align:center;
-            }
-            #ttd {
+        }
+        #ttd {
             position: absolute;
             bottom: 10;
             right: 20;
-            }
-                
+        }
+        .logo-rounded {
+            border-radius: 50%;
+            object-fit: cover;
+        }
     </style>
-   
-
 </head>
 <body>
     <div>
         <table>
-             <!-- <tr>
-                <td style="padding-right: 240px; padding-left: 20px"><img src="https://4.bp.blogspot.com/-TBASjipimVM/WM-xhIQc5yI/AAAAAAAAD5o/NeSO8wMRISQMLeTCfKBFmewY4vQt1y-NQCEw/s1600/Logo%2BJakarta%2BHitam.png" width="90" height="90" ></td>
+            <tr>
+                <td style="padding-right: 50px; padding-left: 200px;">
+                    @if($base64Logo)
+                        <img src="{{ $base64Logo }}" alt="Logo" width="100" height="100" class="logo-rounded">
+                    @else
+                        <small>Logo tidak ditemukan</small>
+                    @endif
+                </td>
                 <td>
                     <center>
                         <font size="4">OPTIMALISASI STRATEGI PROMOSI</font><br>
@@ -44,18 +63,9 @@
                         <font size="2">SIMPLE ADDITIVE WEIGHTING (SAW)</font><br>
                     </center>
                 </td>
-            </tr> -->
-            <tr>
-                <td style="text-align:center;" justify>
-                    <center>
-                        <font size="4">OPTIMALISASI STRATEGI PROMOSI</font><br>
-                        <font size="4">WARUNG KOPI 6 SAUDARA</font><br>
-                        <font size="2">KECAMATAN DUREN SAWIT</font><br>
-                        <font size="2">SIMPLE ADDITIVE WEIGHTING (SAW)</font><br>
-                    </center>
-                </td>
+                
             </tr>
-        </table>          
+        </table> 
 
       <hr class="garis1"/>
       <div style="margin-top: 25px; margin-bottom: 25px;">
