@@ -210,6 +210,6 @@ public function downloadPDF()
     $pdf->setPaper('A3', 'potrait');
     return $pdf->stream('perhitungan.pdf');
 }
-
+   
 
 }
