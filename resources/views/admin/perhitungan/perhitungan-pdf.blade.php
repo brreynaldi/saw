@@ -93,17 +93,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = 1; @endphp
-                            @foreach($sortedData as $key => $value)
-                                <tr>
-                                    <td>{{ $key }}</td>
-                                    @foreach($value as $key_1 => $value_1)
-                                        <td>{{ number_format($value_1, 2) }}</td>
-                                    @endforeach
-                                    <td>{{ $no++ }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
+    @php $no = 1; @endphp
+    @foreach($sortedData as $altName => $data)
+        <tr>
+            <td>{{ $altName }}</td>
+            @foreach($data['nilai'] as $nilaiKriteria)
+                <td>{{ number_format($nilaiKriteria, 4) }}</td>
+            @endforeach
+            <td>{{ number_format($data['total'], 4) }}</td>
+            <td>{{ $no++ }}</td>
+        </tr>
+    @endforeach
+</tbody>
                     </table>
                 </div>
             </div>

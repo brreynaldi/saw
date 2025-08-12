@@ -119,7 +119,6 @@ foreach ($rankingSorted as $altName => $total) {
         'alternatif','kriteria','normalisasi','rankPerAlt','rankingFull','sortedData','preferensi','minMax'
     ));
 }
-
 public function downloadPDF()
 {
     setlocale(LC_ALL, 'IND');
@@ -144,73 +143,73 @@ public function downloadPDF()
         return redirect(route('penilaian.index'));
     }
 
-    // Cari min/max
+    // 1) Hitung min & max per kriteria
     $minMax = [];
     foreach ($kriteria as $k) {
+        $vals = [];
         foreach ($penilaian as $p) {
-            if ($k->id == $p->crips->kriteria_id) {
-                $minMax[$k->id][] = $p->crips->bobot;
+            if ($p->crips->kriteria_id == $k->id) {
+                $vals[] = $p->crips->bobot;
             }
         }
+        $minMax[$k->id] = [
+            'min' => count($vals) ? min($vals) : 0,
+            'max' => count($vals) ? max($vals) : 0,
+        ];
     }
 
-    // Normalisasi
+    // 2) Normalisasi
     $normalisasi = [];
-    foreach ($penilaian as $p) {
-        $altName = $p->alternatif->nama_alternatif;
-        $kId = $p->crips->kriteria_id;
-        $nilai = $p->crips->bobot;
-
-        if (!isset($minMax[$kId]) || count($minMax[$kId]) == 0) continue;
-
-        $attrib = null;
+    foreach ($alternatif as $alt) {
+        $altName = $alt->nama_alternatif;
         foreach ($kriteria as $k) {
-            if ($k->id == $kId) {
-                $attrib = $k->attribut;
-                break;
+            $nilai = 0;
+            foreach ($alt->penilaian as $p) {
+                if ($p->crips->kriteria_id == $k->id) {
+                    $nilai = $p->crips->bobot;
+                    break;
+                }
+            }
+            if ($k->attribut === 'Benefit') {
+                $normalisasi[$altName][$k->id] = $minMax[$k->id]['max'] == 0 ? 0 : ($nilai / $minMax[$k->id]['max']);
+            } else {
+                $normalisasi[$altName][$k->id] = $nilai == 0 ? 0 : ($minMax[$k->id]['min'] / $nilai);
             }
         }
-
-        if ($attrib === 'Benefit') {
-            $normalisasi[$altName][$kId] = max($minMax[$kId]) == 0 ? 0 : ($nilai / max($minMax[$kId]));
-        } else {
-            $normalisasi[$altName][$kId] = $nilai == 0 ? 0 : (min($minMax[$kId]) / $nilai);
-        }
+        ksort($normalisasi[$altName]);
     }
 
-    // pastikan semua key ada
-    foreach ($normalisasi as $altName => &$vals) {
-        foreach ($kriteria as $k) {
-            if (!isset($vals[$k->id])) $vals[$k->id] = 0;
-        }
-        ksort($vals);
-    }
-    unset($vals);
-
-    // Perangkingan per alternatif (nilai*bobot per kriteria)
+    // 3) Hitung nilai berbobot & preferensi total
     $rankPerAlt = [];
+    $preferensi = [];
     foreach ($normalisasi as $altName => $vals) {
-        $rankPerAlt[$altName] = [];
+        $total = 0;
         foreach ($kriteria as $k) {
             $r = isset($vals[$k->id]) ? $vals[$k->id] : 0;
-            $rankPerAlt[$altName][] = $r * (float)$k->bobot;
+            $score = $r * (float) $k->bobot;
+            $rankPerAlt[$altName][$k->id] = $score;
+            $total += $score;
         }
+        $preferensi[$altName] = $total;
     }
 
-    // Bentuk rankingFull = normalisasi + total
-    $rankingFull = $normalisasi;
-    foreach ($rankingFull as $altName => $vals) {
-        $total = array_sum($rankPerAlt[$altName]);
-        $rankingFull[$altName][] = $total;
+    // 4) Urutkan data sesuai total
+    $sortedData = [];
+    $rankingSorted = collect($preferensi)->sortDesc()->toArray();
+    foreach ($rankingSorted as $altName => $total) {
+        $sortedData[$altName] = [
+            'nilai' => $rankPerAlt[$altName],
+            'total' => $total
+        ];
     }
 
-    $sortedData = collect($rankingFull)->sortByDesc(function($value) {
-        return array_sum($value);
-    })->toArray();
-
-    $pdf = PDF::loadView('admin.perhitungan.perhitungan-pdf', compact('alternatif','kriteria','normalisasi','sortedData','tanggal'));
+    // 5) Kirim ke PDF view
+    $pdf = PDF::loadView('admin.perhitungan.perhitungan-pdf', compact(
+        'alternatif','kriteria','normalisasi','sortedData','tanggal'
+    ));
     $pdf->setPaper('A3', 'potrait');
     return $pdf->stream('perhitungan.pdf');
 }
+
 
 }
