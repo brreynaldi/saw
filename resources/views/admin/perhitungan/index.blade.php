@@ -81,19 +81,15 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($normalisasi as $key => $value)
-                                    <tr>
-                                        <td>{{ $key }}</td>
-                                                @foreach($value as $key_1 => $value_1)
-                                                <td> 
-                                                    @if($value[count($value)-1] != $key_1)
-                                                        {{ $value_1 }}
-                                                    @endif
-                                                </td>
-                                                @endforeach
-                                    </tr>
-                                @endforeach
-                            </tbody>
+    @foreach ($normalisasi as $altName => $nilaiKriteria)
+        <tr>
+            <td>{{ $altName }}</td>
+            @foreach ($nilaiKriteria as $nilai)
+                <td>{{ number_format($nilai, 4) }}</td>
+            @endforeach
+        </tr>
+    @endforeach
+</tbody>
                         </table>
                 </div>
             </div>
@@ -129,17 +125,18 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @php $no = 1;@endphp
-                                @foreach($sortedData as $key => $value)
-                                <tr>
-                                    <td>{{ $key }}</td>
-                                    @foreach($value as $key_1 => $value_1)
-                                    <td>{{ number_format($value_1, 1) }}</td>
-                                    @endforeach
-                                    <td>{{ $no++ }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
+    @php $no = 1; @endphp
+    @foreach($sortedData as $altName => $data)
+        <tr>
+            <td>{{ $altName }}</td>
+            @foreach($data['nilai'] as $nilaiKriteria)
+                <td>{{ number_format($nilaiKriteria, 4) }}</td>
+            @endforeach
+            <td>{{ number_format($data['total'], 4) }}</td>
+            <td>{{ $no++ }}</td>
+        </tr>
+    @endforeach
+</tbody>
                         </table>
                 </div>
             </div>
