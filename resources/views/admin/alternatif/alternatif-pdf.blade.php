@@ -69,7 +69,7 @@
 
       <hr class="garis1"/>
       <div style="margin-top: 25px; margin-bottom: 25px;">
-        <center><strong><u>LIST KONSUMEN</u></strong></center>
+        <center><strong><u>LIST ALTERNATIF</u></strong></center>
       </div>
 
       <div class="collapse show" id="listkriteria">
@@ -79,7 +79,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Nama Konsumen</th>
+                            <th>Nama Alternatif</th>
                             <th>NIK</th>
                             <th>Alamat</th>
                             <th>Telepon</th>
